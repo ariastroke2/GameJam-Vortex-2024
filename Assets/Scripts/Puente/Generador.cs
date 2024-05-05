@@ -27,6 +27,7 @@ public class Generador : MonoBehaviour
             }
             Tabla.GetComponent<Tablon>().Liquidez = Liquidez;
             Tabla.GetComponent<Tablon>().Retardo = Retardo;
+            Tabla.transform.parent = transform.parent;
             Tabla.name = tab.ToString();
             TablaIzquierda = Tabla;
         }

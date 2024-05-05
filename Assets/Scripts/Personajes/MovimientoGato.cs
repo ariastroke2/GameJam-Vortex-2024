@@ -15,6 +15,10 @@ public class MovimientoGato : MonoBehaviour
 
     public bool Reiniciar;
 
+    public AudioClip _saltar;
+    public AudioClip _stomp;
+    public AudioClip _superjump;
+
     private float _gordura;
     public float _velocidad; // va de 0 a 1
     private float _retrasoVelocidad;
@@ -41,10 +45,16 @@ public class MovimientoGato : MonoBehaviour
     private Transform _manoIzquierda;
     private Transform _cuerpo;
     private Transform _cabeza;
+    private Transform _pieIzquierdo;
+    private Transform _pieDerecho;
 
     private float _YNormal;
     private float _YTrans;
     private float _XTrans;
+
+    public bool _startGame;
+
+    private AudioSource _audioSource;
 
     // Start is called before the first frame update
     void Start()
@@ -60,6 +70,8 @@ public class MovimientoGato : MonoBehaviour
         _manoIzquierda = transform.Find("Mano Izquierda");
         _cuerpo = transform.Find("Cuerpo");
         _cabeza = transform.Find("Cabeza");
+        _pieIzquierdo = transform.Find("Pie Izquierdo");
+        _pieDerecho = transform.Find("Pie Derecho");
 
         _ultimaTecla = KeyCode.F1;
 
@@ -67,7 +79,14 @@ public class MovimientoGato : MonoBehaviour
         _YTrans = 3f;
 
         _XTrans = 5f;
+        _audioSource = GetComponent<AudioSource>();
+        Application.targetFrameRate = 60;
 
+        _startGame = false;
+        _retrasoVelocidad = 4f;
+        _velocidad = 0.75f;
+        _puedeAvanzar = false;
+        _estado = "calentar";
     }
 
     // Update is called once per frame
@@ -75,38 +94,50 @@ public class MovimientoGato : MonoBehaviour
     {
         _temporizador += Time.deltaTime;
         _temporizadorSeno += Time.deltaTime * _velocidad;
-        if( _velocidad > 0.95f)
-            _temporizadorSeno += Time.deltaTime * _velocidad;
-        if (_retrasoVelocidad > 0)
+        Animacion();
+        if (_startGame)
         {
-            _retrasoVelocidad -= Time.deltaTime;
-        }
-        else
-        {
-            _velocidad += _aceleracion * Time.deltaTime;
-            if (_velocidad > 1f)
+            if (_velocidad > 0.99f)
+                _temporizadorSeno += Time.deltaTime * _velocidad;
+            if (_retrasoVelocidad > 0)
             {
-                _velocidad = 1f;
+                _retrasoVelocidad -= Time.deltaTime;
+            }
+            else
+            {
+                _velocidad += _aceleracion * Time.deltaTime;
+                if (_velocidad > 1f)
+                {
+                    _velocidad = 1f;
+                }
+
             }
 
-        }
+            float TransformacionZ = _velocidadHaciaObjetivo * _velocidad;
+            if (_puedeAvanzar)
+            {
+                transform.position += new Vector3(0, 0, -TransformacionZ) * Time.deltaTime;
+                if (_velocidad > 0.99f)
+                    transform.position += new Vector3(0, 0, -TransformacionZ) * Time.deltaTime * 0.2f;
+            }
 
-        float TransformacionZ = _velocidadHaciaObjetivo * _velocidad;
-        if (_puedeAvanzar)
-        {
-            transform.position += new Vector3(0, 0, -TransformacionZ) * Time.deltaTime;
-            if(_velocidad > 0.95f)
-                transform.position += new Vector3(0, 0, -TransformacionZ) * Time.deltaTime * 0.2f;
-        }
+            Inputs();
 
-        Animacion();
-        Inputs();
-
-        if (Reiniciar)
-        {
-            Reiniciar = false;
-            _velocidad -= 0.5f;
+            if (Reiniciar)
+            {
+                Reiniciar = false;
+                RecibirDaño(0.5f, 1f);
+            }
         }
+    }
+
+    public void Iniciar()
+    {
+        _startGame = true;
+        _retrasoVelocidad = 0;
+        _velocidad = 0;
+        _puedeAvanzar = true;
+        _estado = "correr";
     }
 
     private void Inputs()
@@ -127,6 +158,7 @@ public class MovimientoGato : MonoBehaviour
             {
                 if (_verticalidad != null)
                     StopCoroutine(_verticalidad);
+                _audioSource.PlayOneShot(_saltar);
                 _estado = "saltar";
                 _verticalidad = SaltarCorutina();
                 StartCoroutine(_verticalidad);
@@ -160,6 +192,7 @@ public class MovimientoGato : MonoBehaviour
                 if (_verticalidad != null)
                     StopCoroutine(_verticalidad);
                 _estado = "supersaltar";
+                _audioSource.PlayOneShot(_superjump);
                 _verticalidad = SuperSaltarCorutina();
                 StartCoroutine(_verticalidad);
                 _ultimaTecla = KeyCode.W;
@@ -224,8 +257,10 @@ public class MovimientoGato : MonoBehaviour
         if(hit.collider != null)
             hit.collider.gameObject.GetComponent<Tablon>()?.Recibir(20f, 'a');
         transform.position = new Vector3(transform.position.x, _YNormal, transform.position.z);
+        _audioSource.PlayOneShot(_stomp);
         _ultimaTecla = KeyCode.F1;
         _estado = "correr";
+        _retrasoVelocidad = 0f;
         _puedeAvanzar = true;
     }
 
@@ -235,6 +270,7 @@ public class MovimientoGato : MonoBehaviour
         _OriginalY = transform.position.y;
         _ObjetivoY = _OriginalY - _YTrans;
         _OriginalEscala = transform.localScale;
+        _retrasoVelocidad = 100f;
         float EscalaTiempo = 1 / _tiempoMovimiento;
         while (_temporizadorCorutina < 1f)
         {
@@ -266,6 +302,7 @@ public class MovimientoGato : MonoBehaviour
         _temporizadorCorutina = 0f;
         _OriginalY = transform.position.y;
         _ObjetivoY = _YNormal;
+        _retrasoVelocidad = 0f;
         float EscalaTiempo = 5f;
         while (_temporizadorCorutina < 1f)
         {
@@ -274,6 +311,21 @@ public class MovimientoGato : MonoBehaviour
             transform.position = new Vector3(transform.position.x, Mathf.SmoothStep(_OriginalY, _ObjetivoY, _temporizadorCorutina), transform.position.z);
             yield return null;
         }
+    }
+
+    IEnumerator MatarCorutina()
+    {
+        _temporizadorCorutina = 0f;
+        float EscalaTiempo = 5f;
+        while (_temporizadorCorutina * Mathf.Rad2Deg < 270)
+        {
+            _temporizadorCorutina += Time.deltaTime * EscalaTiempo;
+            transform.Rotate(80f * Time.deltaTime, 10f * Time.deltaTime, 500f * Time.deltaTime);
+            transform.position += _YTrans * 15f * Mathf.Cos(_temporizadorCorutina) * Vector3.up * Time.deltaTime;
+            transform.position += _XTrans * 7f * Vector3.right * Time.deltaTime;                
+            yield return null;
+        }
+        Destroy(gameObject);
     }
 
     private void Animacion()
@@ -285,6 +337,8 @@ public class MovimientoGato : MonoBehaviour
         {
             _manoIzquierda.localPosition = new Vector3(1.5f, Mathf.Abs(SenoTiempo) * -1f * _radioBrazos, CosenoTiempo * _radioBrazos * 2f);
             _manoDerecha.localPosition = new Vector3(-1.5f, Mathf.Abs(SenoTiempo) * -1f * _radioBrazos, -CosenoTiempo * _radioBrazos * 2f);
+            _pieIzquierdo.localPosition = new Vector3(1f, Mathf.Abs(SenoTiempo) * 0.7f - 5f, CosenoTiempo * 1f);
+            _pieDerecho.localPosition = new Vector3(-1f, Mathf.Abs(SenoTiempo) * 0.7f - 5f, -CosenoTiempo * 1f);
             _cuerpo.localPosition = new Vector3(0, -2.6f + Mathf.Abs(SenoTiempo) * 1f, 0);
             _cabeza.localPosition = new Vector3(0, Mathf.Abs(SenoTiempo) * 1f, 0);
         }
@@ -293,11 +347,26 @@ public class MovimientoGato : MonoBehaviour
             _manoIzquierda.localPosition = Vector3.Lerp(_manoIzquierda.localPosition, new Vector3(1.5f, 0, 0), 0.1f);
             _manoDerecha.localPosition = Vector3.Lerp(_manoDerecha.localPosition, new Vector3(-1.5f, 0, 0), 0.1f);
         }
+        if (_estado == "calentar")
+        {
+            _pieIzquierdo.localPosition = new Vector3(1f, -5f + Mathf.Abs(SenoTiempo) * 1f, 0);
+            _pieDerecho.localPosition = new Vector3(-1f, -5f + Mathf.Abs(SenoTiempo) * 1f, 0);
+            _cuerpo.localPosition = new Vector3(0, -2.6f + Mathf.Abs(SenoTiempo) * 2f, 0);
+            _cabeza.localPosition = new Vector3(0, Mathf.Abs(SenoTiempo) * 2f, 0);
+            if (SenoTiempo > 0)
+                _manoIzquierda.localPosition = new Vector3(Mathf.Abs(CosenoTiempo) * _radioBrazos, Mathf.Abs(SenoTiempo) * 1f * _radioBrazos, 0);
+            else
+                _manoDerecha.localPosition = new Vector3(-Mathf.Abs(CosenoTiempo) * _radioBrazos, Mathf.Abs(SenoTiempo) * 1f * _radioBrazos, 0);
+        }
     }
 
     public void RecibirDaño(float porcentaje, float retraso)
     {
         _velocidad -= porcentaje;
         _retrasoVelocidad = retraso;
+        if(_velocidad < 0)
+        {
+            StartCoroutine(MatarCorutina());
+        }
     }
 }

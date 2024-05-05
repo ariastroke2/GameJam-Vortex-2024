@@ -9,6 +9,10 @@ public class Tablon : MonoBehaviour
 
     public bool Activar;
 
+    public AudioClip _shake1;
+    public AudioClip _shake2;
+    public AudioClip _shake3;
+
     public float Retardo;
     public float Liquidez;
 
@@ -24,12 +28,15 @@ public class Tablon : MonoBehaviour
 
     private float OffsetY;
 
+    private AudioSource _audioSource;
+
     void Start()
     {
         Tiempo = 0;
         qEmision = false;
         Velocidad = 0f;
         OffsetY = transform.position.y;
+        _audioSource = GetComponent<AudioSource>(); 
     }
 
     void Update()
@@ -40,7 +47,7 @@ public class Tablon : MonoBehaviour
             Recibir(10f, 'a');
         }
         Tiempo += Time.deltaTime;
-        Velocidad *= 0.99f;
+        Velocidad *= 0.935f;
         transform.position = new Vector3(transform.position.x, - Velocidad * Mathf.Sin(Tiempo * Multiplicador) + OffsetY, transform.position.z);
 
         if (qEmision)
@@ -74,5 +81,21 @@ public class Tablon : MonoBehaviour
         qDireccion = Direccion;
         qEmision = true;
         Tiempo = 0;
+        if(Direccion == 'l')
+            if(Random.Range(0,2) == 1)
+            {
+                _audioSource.PlayOneShot(_shake1);
+            }
+            else
+            {
+                if (Random.Range(0, 2) == 1)
+                {
+                    _audioSource.PlayOneShot(_shake2);
+                }
+                else
+                {
+                    _audioSource.PlayOneShot(_shake3);
+                }
+            }
     }
 }

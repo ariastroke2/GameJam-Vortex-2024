@@ -33,6 +33,9 @@ public class MovimientoRaton : MonoBehaviour
     private float _YTrans;
     private float _XTrans;
 
+    public bool _startGame;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -45,14 +48,22 @@ public class MovimientoRaton : MonoBehaviour
         _YTrans = 20f;
 
         _XTrans = 5f;
-
+        _startGame = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        _temporizador += Time.deltaTime;
-        Inputs();
+        if(_startGame)
+        {
+            _temporizador += Time.deltaTime;
+            Inputs();
+        }
+    }
+
+    public void Iniciar()
+    {
+        _startGame = true;
     }
 
     private void Inputs()
