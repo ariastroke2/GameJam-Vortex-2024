@@ -261,6 +261,7 @@ public class MovimientoGato : MonoBehaviour
         _ultimaTecla = KeyCode.F1;
         _estado = "correr";
         _retrasoVelocidad = 0f;
+        RecibirDaño(0.3f, 0.3f);
         _puedeAvanzar = true;
     }
 
