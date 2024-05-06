@@ -14,17 +14,18 @@ public class MovimientoRaton : MonoBehaviour
 
     public bool Reiniciar;
 
+    public AudioClip _jump;
+    public AudioClip _die;
+
+    public float StarRadius;
+
     private float _temporizador;
     private float _temporizadorCorutina;
 
     private KeyCode _ultimaTecla;
-    private string _estado;
-
 
     private float _ObjetivoY;
-    private Vector3 _OriginalEscala;
     private float _OriginalY;
-    private Vector3 _ObjetivoEscala;
     private float _ObjetivoX;
     private float _OriginalX;
     private IEnumerator _verticalidad;
@@ -35,12 +36,18 @@ public class MovimientoRaton : MonoBehaviour
 
     public bool _startGame;
 
+    private AudioSource _audioSource;
+
+    private float _Retraso;
+
+    private Transform _star1;
+    private Transform _star2;
+
 
     // Start is called before the first frame update
     void Start()
     {
         _temporizador = 0;
-        _estado = "nada";
 
         _ultimaTecla = KeyCode.F1;
 
@@ -49,6 +56,14 @@ public class MovimientoRaton : MonoBehaviour
 
         _XTrans = 5f;
         _startGame = false;
+
+        _audioSource = GetComponent<AudioSource>();
+
+        _star1 = transform.Find("Star1");
+        _star2 = transform.Find("Star2");
+
+        _star1.gameObject.SetActive(false);
+        _star2.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -57,7 +72,22 @@ public class MovimientoRaton : MonoBehaviour
         if(_startGame)
         {
             _temporizador += Time.deltaTime;
-            Inputs();
+            if(_Retraso > 0)
+            {
+                transform.rotation = Quaternion.Euler(180f, 0, 0);
+                _Retraso -= Time.deltaTime;
+                _star1.gameObject.SetActive(true);
+                _star2.gameObject.SetActive(true);
+                _star1.localPosition = new Vector3(Mathf.Cos(_temporizador * 20f) * StarRadius, -1.5f, Mathf.Sin(_temporizador * 20f) * StarRadius);
+                _star2.localPosition = new Vector3(-Mathf.Cos(_temporizador * 20f) * StarRadius, -1.5f, -Mathf.Sin(_temporizador * 20f) * StarRadius);
+            }
+            else
+            {
+                _star1.gameObject.SetActive(false);
+                _star2.gameObject.SetActive(false);
+                transform.rotation = Quaternion.identity;
+                Inputs();
+            }
         }
     }
 
@@ -74,10 +104,10 @@ public class MovimientoRaton : MonoBehaviour
             {
                 if (_verticalidad != null)
                     StopCoroutine(_verticalidad);
-                _estado = "saltar";
                 _verticalidad = SaltarCorutina();
                 StartCoroutine(_verticalidad);
                 _ultimaTecla = KeyCode.UpArrow;
+                _audioSource.PlayOneShot(_jump);
             }
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
@@ -90,20 +120,27 @@ public class MovimientoRaton : MonoBehaviour
                     StartCoroutine(HorizontalCorutina(1));
             }
         }
-        if (_ultimaTecla == KeyCode.DownArrow)
+    }
+
+    public void GatoGana()
+    {
+        StopAllCoroutines();
+        _audioSource.PlayOneShot(_die);
+        _startGame = false;
+        transform.Rotate(90f, 0, 0);
+        transform.position = new Vector3(transform.position.x, 3.5f, transform.position.z);
+        StartCoroutine(MatarCorutina());
+    }
+
+    IEnumerator MatarCorutina()
+    {
+        _temporizadorCorutina = 0f;
+        while (_temporizadorCorutina < 1f)
         {
-            if (Input.GetKeyUp(_ultimaTecla))
-            {
-                if (_verticalidad != null)
-                    StopCoroutine(_verticalidad);
-                _verticalidad = ReiniciarYCorutina();
-                StartCoroutine(_verticalidad);
-                _ultimaTecla = KeyCode.F1;
-                _estado = "correr";
-            }
+            _temporizadorCorutina += Time.deltaTime;
+            yield return null;
         }
-
-
+        Destroy(this);
     }
 
     IEnumerator SaltarCorutina()
@@ -119,51 +156,7 @@ public class MovimientoRaton : MonoBehaviour
         }
         transform.position = new Vector3(transform.position.x, _YNormal, transform.position.z);
         _ultimaTecla = KeyCode.F1;
-        _estado = "correr";
     }
-
-    IEnumerator SuperSaltarCorutina()
-    {
-        _temporizadorCorutina = 0f;
-        float EscalaTiempo = 3f;
-        while (_temporizadorCorutina * Mathf.Rad2Deg < 140)
-        {
-
-            _temporizadorCorutina += Time.deltaTime * EscalaTiempo;
-            if (_temporizadorCorutina * Mathf.Rad2Deg < 90)
-            {
-                transform.position += _YTrans * 20f * Mathf.Cos(_temporizadorCorutina) * Vector3.up * Time.deltaTime;
-            }
-            else
-            {
-                transform.position += _YTrans * 20f * Mathf.Cos(_temporizadorCorutina * 3f + (Mathf.PI * 9f / 3f)) * Vector3.up * Time.deltaTime;
-            }
-            yield return null;
-        }
-        RaycastHit hit;
-        Physics.BoxCast(transform.position - Vector3.down * 4f, new Vector3(0.5f, 10f, 3f), Vector3.down, out hit);
-        hit.collider.gameObject.GetComponent<Tablon>()?.Recibir(20f, 'a');
-        transform.position = new Vector3(transform.position.x, _YNormal, transform.position.z);
-        _ultimaTecla = KeyCode.F1;
-        _estado = "correr";
-    }
-
-    IEnumerator AgacharCorutina()
-    {
-        _temporizadorCorutina = 0f;
-        _OriginalY = transform.position.y;
-        _ObjetivoY = _OriginalY - _YTrans;
-        _OriginalEscala = transform.localScale;
-        float EscalaTiempo = 1 / _tiempoMovimiento;
-        while (_temporizadorCorutina < 1f)
-        {
-            _temporizadorCorutina += Time.deltaTime * EscalaTiempo;
-            transform.localScale = Vector3.Slerp(_OriginalEscala, new Vector3(2, 0.5f, 0), _temporizadorCorutina);
-            transform.position = new Vector3(transform.position.x, Mathf.SmoothStep(_OriginalY, _ObjetivoY, _temporizadorCorutina), transform.position.z);
-            yield return null;
-        }
-    }
-
     IEnumerator HorizontalCorutina(int dir)
     {
         _temporizadorCorutina = 0f;
@@ -177,21 +170,14 @@ public class MovimientoRaton : MonoBehaviour
             transform.position = new Vector3(Mathf.SmoothStep(_OriginalX, _ObjetivoX, _temporizadorCorutina), transform.position.y, transform.position.z);
             yield return null;
         }
-        _estado = "correr";
+        transform.position = new Vector3(_ObjetivoX, transform.position.y, transform.position.z);
     }
 
-    IEnumerator ReiniciarYCorutina()
+    private void OnTriggerEnter(Collider other)
     {
-        _temporizadorCorutina = 0f;
-        _OriginalY = transform.position.y;
-        _ObjetivoY = _YNormal;
-        float EscalaTiempo = 5f;
-        while (_temporizadorCorutina < 1f)
+        if (other.CompareTag("Tabla"))
         {
-            _temporizadorCorutina += Time.deltaTime * EscalaTiempo;
-            transform.localScale = Vector3.Slerp(transform.localScale, Vector3.one, _temporizadorCorutina);
-            transform.position = new Vector3(transform.position.x, Mathf.SmoothStep(_OriginalY, _ObjetivoY, _temporizadorCorutina), transform.position.z);
-            yield return null;
+            _Retraso = 5f;
         }
     }
 }

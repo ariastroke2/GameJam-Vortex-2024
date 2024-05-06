@@ -230,7 +230,7 @@ MonoBehaviour:
   Reiniciar: 0
   _jump: {fileID: 8300000, guid: 2f72021588c83894b97be94dc6858ca3, type: 3}
   _die: {fileID: 8300000, guid: ef3b156434ca6424a99ce6a518c82837, type: 3}
-  StarRadius: 3
+  StarRadius: 1.5
   _startGame: 0
 --- !u!4 &44356801
 Transform:
@@ -728,7 +728,7 @@ SpriteRenderer:
   m_Sprite: {fileID: 21300000, guid: 9762423ba78ef344c90c454c37b7b179, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
-  m_FlipY: 0
+  m_FlipY: 1
   m_DrawMode: 0
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
@@ -2647,7 +2647,7 @@ SpriteRenderer:
   m_Sprite: {fileID: 21300000, guid: 9762423ba78ef344c90c454c37b7b179, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
-  m_FlipY: 0
+  m_FlipY: 1
   m_DrawMode: 0
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5

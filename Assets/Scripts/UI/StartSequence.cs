@@ -5,11 +5,13 @@ using TMPro;
 
 public class StartSequence : MonoBehaviour
 {
+    [Header("Sonidos")]
     public AudioClip _one;
     public AudioClip _two;
     public AudioClip _three;
     public AudioClip _four;
 
+    [Header("Ajustes inicio")]
     public bool _startSequence;
     public float _startDelay;
 
@@ -17,55 +19,49 @@ public class StartSequence : MonoBehaviour
 
     private AudioSource _audioSource;
 
+    [Header("Elementos UI")]
     public TextMeshProUGUI _countdownText;
+    public GameObject _UIIntro;
+    public GameObject _UIJuego;
 
+    [Header("Jugadores")]
     public MovimientoGato _gato;
     public MovimientoRaton _raton;
 
     void Start()
     {
         _audioSource = GetComponent<AudioSource>();
+        _UIJuego.SetActive(false);
+        _UIIntro.SetActive(true);
         StartCoroutine(IniciarCorutina());
     }
 
 
     IEnumerator IniciarCorutina()
     {
-        float bpmunit = 1f / (180f / 60f);
+        float bpmunit = 1f / (182f / 60f);
         while (_timer < _startDelay)
         {
             _timer += Time.deltaTime;
             yield return null;
         }
-        _audioSource.PlayOneShot(_one);
+        _audioSource.PlayOneShot(_three);
+        _countdownText.text = "3";
         while (_timer < bpmunit * 2 + _startDelay)
         {
             _timer += Time.deltaTime;
             yield return null;
         }
         _audioSource.PlayOneShot(_two);
+        _countdownText.text = "2";
         while (_timer < bpmunit * 4 + _startDelay)
         {
             _timer += Time.deltaTime;
             yield return null;
         }
         _audioSource.PlayOneShot(_one);
-        _countdownText.text = "3";
-        while (_timer < bpmunit * 5 + _startDelay)
-        {
-            _timer += Time.deltaTime;
-            yield return null;
-        }
-        _audioSource.PlayOneShot(_two);
-        _countdownText.text = "2";
-        while (_timer < bpmunit * 6 + _startDelay)
-        {
-            _timer += Time.deltaTime;
-            yield return null;
-        }
-        _audioSource.PlayOneShot(_three);
         _countdownText.text = "1";
-        while (_timer < bpmunit * 7 + _startDelay)
+        while (_timer < bpmunit * 6 + _startDelay)
         {
             _timer += Time.deltaTime;
             yield return null;
@@ -80,6 +76,8 @@ public class StartSequence : MonoBehaviour
             yield return null;
         }
         _countdownText.text = "";
+        _UIJuego.SetActive(true);
+        _UIIntro.SetActive(false);
     }
 
 }

@@ -135,9 +135,16 @@ public class MovimientoGato : MonoBehaviour
     {
         _startGame = true;
         _retrasoVelocidad = 0;
-        _velocidad = 0;
+        _velocidad = 0.5f;
         _puedeAvanzar = true;
         _estado = "correr";
+    }
+
+    public void Ganar()
+    {
+        _ultimaTecla = KeyCode.Space;
+        StartCoroutine(GanarCorutina());
+        
     }
 
     private void Inputs()
@@ -316,6 +323,7 @@ public class MovimientoGato : MonoBehaviour
 
     IEnumerator MatarCorutina()
     {
+        _startGame = false;
         _temporizadorCorutina = 0f;
         float EscalaTiempo = 5f;
         while (_temporizadorCorutina * Mathf.Rad2Deg < 270)
@@ -327,6 +335,21 @@ public class MovimientoGato : MonoBehaviour
             yield return null;
         }
         Destroy(gameObject);
+    }
+
+    IEnumerator GanarCorutina()
+    {
+        _temporizadorCorutina = 0f;
+        while (_temporizadorCorutina < 1f)
+        {
+            _temporizadorCorutina += Time.deltaTime;
+            yield return null;
+        }
+        _startGame = true;
+        _retrasoVelocidad = 1000f;
+        _velocidad = 0.75f;
+        _puedeAvanzar = false;
+        _estado = "calentar";
     }
 
     private void Animacion()
