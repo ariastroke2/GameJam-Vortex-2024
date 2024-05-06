@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MovimientoRaton : MonoBehaviour
 {
-    [Header("Parámetros gato")]
+    [Header("Parï¿½metros gato")]
     public float _aceleracion;
     public float _tiempoObjetivo;
 
@@ -43,10 +43,17 @@ public class MovimientoRaton : MonoBehaviour
     private Transform _star1;
     private Transform _star2;
 
+    float _gastado;
+    public GameObject cleotilde;
+    public GameObject piedrota;
+    public GameObject dardos;
+    public GameObject piedrita;
+
 
     // Start is called before the first frame update
     void Start()
     {
+        _gastado=0;
         _temporizador = 0;
 
         _ultimaTecla = KeyCode.F1;
@@ -119,6 +126,10 @@ public class MovimientoRaton : MonoBehaviour
                 if (transform.position.x < 3)
                     StartCoroutine(HorizontalCorutina(1));
             }
+            if (Input.GetKeyDown(KeyCode.RightShift))
+            {
+                Lanzar();
+            }
         }
     }
 
@@ -178,6 +189,34 @@ public class MovimientoRaton : MonoBehaviour
         if (other.CompareTag("Tabla"))
         {
             _Retraso = 5f;
+        }
+    }
+
+       void Lanzar (){
+        if(_temporizador-_gastado>1f){
+            if(_temporizador-_gastado>3f){
+               if(_temporizador-_gastado>7f){
+                    if(_temporizador-_gastado>15f){
+                        _gastado+=15f;
+                        GameObject carro=Instantiate(cleotilde,(new Vector3(2,6,-180)),Quaternion.identity);
+                    }
+                    else{
+                        _gastado+=7f;
+                        GameObject piedrag=Instantiate(piedrota,transform.position,Quaternion.identity);
+                    }
+               } 
+               else{
+                    _gastado+=3f;
+                    GameObject dart=Instantiate(dardos,transform.position,Quaternion.identity);
+               }
+            }
+            else{
+                _gastado+=1f;
+                GameObject cricko=Instantiate(piedrita,transform.position,Quaternion.identity);
+            }
+        }
+        else{
+            Debug.Log("PERDEDOR,NO TIENE NADA QUE LANZAR");
         }
     }
 }
