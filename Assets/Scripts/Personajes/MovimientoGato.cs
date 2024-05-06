@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MovimientoGato : MonoBehaviour
 {
-    [Header("Parámetros gato")]
+    [Header("Parï¿½metros gato")]
     public float _aceleracion;
     public float _tiempoObjetivo;
 
@@ -56,10 +56,14 @@ public class MovimientoGato : MonoBehaviour
 
     private AudioSource _audioSource;
 
+
+    public bool flaco;
+
     // Start is called before the first frame update
     void Start()
     {
-        _velocidadHaciaObjetivo = 400f / _tiempoObjetivo;  // aproximado de cuanto tiempo va a tardar el gato en llegar al ratón
+        flaco=false;
+        _velocidadHaciaObjetivo = 400f / _tiempoObjetivo;  // aproximado de cuanto tiempo va a tardar el gato en llegar al ratï¿½n
         _velocidad = 0;
         _retrasoVelocidad = 0;
         _temporizador = 0;
@@ -126,7 +130,7 @@ public class MovimientoGato : MonoBehaviour
             if (Reiniciar)
             {
                 Reiniciar = false;
-                RecibirDaño(0.5f, 1f);
+                RecibirDanho(0.5f, 1f);
             }
         }
     }
@@ -268,7 +272,7 @@ public class MovimientoGato : MonoBehaviour
         _ultimaTecla = KeyCode.F1;
         _estado = "correr";
         _retrasoVelocidad = 0f;
-        RecibirDaño(0.3f, 0.3f);
+        RecibirDanho(0.3f, 0.3f);
         _puedeAvanzar = true;
     }
 
@@ -384,7 +388,7 @@ public class MovimientoGato : MonoBehaviour
         }
     }
 
-    public void RecibirDaño(float porcentaje, float retraso)
+    public void RecibirDanho(float porcentaje, float retraso)
     {
         _velocidad -= porcentaje;
         _retrasoVelocidad = retraso;
@@ -392,5 +396,26 @@ public class MovimientoGato : MonoBehaviour
         {
             StartCoroutine(MatarCorutina());
         }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("Enflacador")){
+            Enflacar();
+        }
+        if(other.CompareTag("Dardos")){
+            RecibirDanho(0.1f,2);
+        }
+        if(other.CompareTag("Piedrita")){
+            RecibirDanho(0.2f,1);
+        }
+        if(other.CompareTag("Piedrota")){
+            RecibirDanho(0.3f,3);
+        }
+        if(other.CompareTag("Cleotilde")){
+            RecibirDanho(0.4f,5);
+        }
+    }
+    public void Enflacar(){
+        flaco=true;
     }
 }
