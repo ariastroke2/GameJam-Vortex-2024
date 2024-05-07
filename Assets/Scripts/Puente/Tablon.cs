@@ -48,7 +48,7 @@ public class Tablon : MonoBehaviour
         }
         Tiempo += Time.deltaTime;
         Velocidad *= 0.935f;
-        transform.position = new Vector3(transform.position.x, - Velocidad * Mathf.Sin(Tiempo * Multiplicador) + OffsetY, transform.position.z);
+        transform.position = new Vector3(transform.position.x, Velocidad * Mathf.Sin(Tiempo * Multiplicador) + OffsetY, transform.position.z);
 
         if (qEmision)
         {

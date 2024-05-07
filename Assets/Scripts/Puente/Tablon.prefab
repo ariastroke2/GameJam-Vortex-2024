@@ -114,7 +114,7 @@ MonoBehaviour:
   Izquierda: {fileID: 0}
   Derecha: {fileID: 0}
   Activar: 0
-  _shake1: {fileID: 8300000, guid: 8491260c1688e9c498d9f6b106f07a5e, type: 3}
+  _shake1: {fileID: 8300000, guid: ebe4fc923048dac44bf16563054a6dd0, type: 3}
   _shake2: {fileID: 8300000, guid: f12644e182ba90948bdfdfcc260f4300, type: 3}
   _shake3: {fileID: 8300000, guid: ebe4fc923048dac44bf16563054a6dd0, type: 3}
   Retardo: 0.2

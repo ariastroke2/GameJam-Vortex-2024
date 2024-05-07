@@ -14,6 +14,7 @@ public class StartSequence : MonoBehaviour
     [Header("Ajustes inicio")]
     public bool _startSequence;
     public float _startDelay;
+    public bool _pendingEnding;
 
     private float _timer;
 
@@ -23,6 +24,7 @@ public class StartSequence : MonoBehaviour
     public TextMeshProUGUI _countdownText;
     public GameObject _UIIntro;
     public GameObject _UIJuego;
+    public GameObject _UIFinal;
 
     [Header("Jugadores")]
     public MovimientoGato _gato;
@@ -30,10 +32,34 @@ public class StartSequence : MonoBehaviour
 
     void Start()
     {
+        _pendingEnding = true;
         _audioSource = GetComponent<AudioSource>();
         _UIJuego.SetActive(false);
+        _UIFinal.SetActive(false);
         _UIIntro.SetActive(true);
         StartCoroutine(IniciarCorutina());
+    }
+
+    void Update()
+    {
+        if(_gato == null || _raton == null)
+        {
+            _pendingEnding = false;
+            _UIFinal.SetActive(true);
+            _UIIntro.SetActive(false);
+            _UIJuego.SetActive(false);
+            if (_raton == null)
+            {
+                _UIFinal.transform.Find("JomWin").gameObject.SetActive(false);
+                _UIFinal.transform.Find("TerryWin").gameObject.SetActive(true);
+            }
+            else
+            {
+                _UIFinal.transform.Find("TerryWin").gameObject.SetActive(false);
+                _UIFinal.transform.Find("JomWin").gameObject.SetActive(true);
+            }
+        }
+        
     }
 
 

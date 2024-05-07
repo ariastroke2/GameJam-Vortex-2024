@@ -12,7 +12,6 @@ public class GatoSpeed : MonoBehaviour
     void Start()
     {
         _image = GetComponent<Image>();
-        Debug.Log(_image.type);
     }
 
     void Update()

@@ -43,17 +43,21 @@ public class MovimientoRaton : MonoBehaviour
     private Transform _star1;
     private Transform _star2;
 
-    float _gastado;
+    float _poderTirar;
+    public float Siguiente;
+    public int Actual;
     public GameObject cleotilde;
     public GameObject piedrota;
     public GameObject dardos;
     public GameObject piedrita;
 
+    private Animator _animator;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        _gastado=0;
+        _poderTirar = 0;
         _temporizador = 0;
 
         _ultimaTecla = KeyCode.F1;
@@ -65,6 +69,7 @@ public class MovimientoRaton : MonoBehaviour
         _startGame = false;
 
         _audioSource = GetComponent<AudioSource>();
+        _animator = GetComponent<Animator>();
 
         _star1 = transform.Find("Star1");
         _star2 = transform.Find("Star2");
@@ -81,19 +86,46 @@ public class MovimientoRaton : MonoBehaviour
             _temporizador += Time.deltaTime;
             if(_Retraso > 0)
             {
-                transform.rotation = Quaternion.Euler(180f, 0, 0);
+                // transform.rotation = Quaternion.Euler(180f, 0, 0);
                 _Retraso -= Time.deltaTime;
                 _star1.gameObject.SetActive(true);
                 _star2.gameObject.SetActive(true);
-                _star1.localPosition = new Vector3(Mathf.Cos(_temporizador * 20f) * StarRadius, -1.5f, Mathf.Sin(_temporizador * 20f) * StarRadius);
-                _star2.localPosition = new Vector3(-Mathf.Cos(_temporizador * 20f) * StarRadius, -1.5f, -Mathf.Sin(_temporizador * 20f) * StarRadius);
+                _star1.localPosition = new Vector3(Mathf.Cos(_temporizador * 20f) * StarRadius, 1.5f, Mathf.Sin(_temporizador * 20f) * StarRadius);
+                _star2.localPosition = new Vector3(-Mathf.Cos(_temporizador * 20f) * StarRadius, 1.5f, -Mathf.Sin(_temporizador * 20f) * StarRadius);
+                _animator.SetTrigger("Hit");
             }
             else
             {
+                _poderTirar += Time.deltaTime;
                 _star1.gameObject.SetActive(false);
                 _star2.gameObject.SetActive(false);
                 transform.rotation = Quaternion.identity;
                 Inputs();
+                if(_poderTirar > 1)
+                {
+                    Siguiente = (_poderTirar - 1f) / 1f;
+                    Actual = 0;
+                    if (_poderTirar > 2)
+                    {
+                        Siguiente = (_poderTirar - 2f) / 3f;
+                        Actual = 1;
+                        if (_poderTirar > 5)
+                        {
+                            Siguiente = (_poderTirar - 5f) / 5f;
+                            Actual = 2;
+                            if(_poderTirar > 10)
+                            {
+                                Siguiente = 3f;
+                                Actual = 3;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Siguiente = (_poderTirar) / 1f;
+                    Actual = -1;
+                }
             }
         }
     }
@@ -115,19 +147,23 @@ public class MovimientoRaton : MonoBehaviour
                 StartCoroutine(_verticalidad);
                 _ultimaTecla = KeyCode.UpArrow;
                 _audioSource.PlayOneShot(_jump);
+                _animator.SetTrigger("Jump");
             }
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
+                // _animator.SetTrigger("Idle");
                 if (transform.position.x > -3)
                     StartCoroutine(HorizontalCorutina(-1));
             }
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
+                // _animator.SetTrigger("Idle");
                 if (transform.position.x < 3)
                     StartCoroutine(HorizontalCorutina(1));
             }
             if (Input.GetKeyDown(KeyCode.RightShift))
             {
+                // _animator.SetTrigger("Idle");
                 Lanzar();
             }
         }
@@ -145,6 +181,7 @@ public class MovimientoRaton : MonoBehaviour
 
     IEnumerator MatarCorutina()
     {
+        _animator.SetTrigger("Die");
         _temporizadorCorutina = 0f;
         while (_temporizadorCorutina < 1f)
         {
@@ -167,6 +204,7 @@ public class MovimientoRaton : MonoBehaviour
         }
         transform.position = new Vector3(transform.position.x, _YNormal, transform.position.z);
         _ultimaTecla = KeyCode.F1;
+        _animator.SetTrigger("Idle");
     }
     IEnumerator HorizontalCorutina(int dir)
     {
@@ -193,25 +231,25 @@ public class MovimientoRaton : MonoBehaviour
     }
 
        void Lanzar (){
-        if(_temporizador-_gastado>1f){
-            if(_temporizador-_gastado>3f){
-               if(_temporizador-_gastado>7f){
-                    if(_temporizador-_gastado>15f){
-                        _gastado+=15f;
-                        GameObject carro=Instantiate(cleotilde,(new Vector3(2,6,-180)),Quaternion.identity);
+        if(_poderTirar>1f){
+            if(_poderTirar > 2f){
+               if(_poderTirar > 5f){
+                    if(_poderTirar > 10f){
+                        _poderTirar -= 10f;
+                        GameObject carro=Instantiate(cleotilde,(new Vector3(0,6,transform.position.z)),Quaternion.identity);
                     }
                     else{
-                        _gastado+=7f;
-                        GameObject piedrag=Instantiate(piedrota,transform.position,Quaternion.identity);
+                        _poderTirar -= 5f;
+                        GameObject piedrag=Instantiate(piedrota, new Vector3(0, transform.position.y, transform.position.z), Quaternion.identity);
                     }
                } 
                else{
-                    _gastado+=3f;
-                    GameObject dart=Instantiate(dardos,transform.position,Quaternion.identity);
+                    _poderTirar -= 2f;
+                    GameObject dart=Instantiate(dardos, new Vector3(transform.position.x, 5.7f, transform.position.z), Quaternion.identity);
                }
             }
             else{
-                _gastado+=1f;
+                _poderTirar -= 1f;
                 GameObject cricko=Instantiate(piedrita,transform.position,Quaternion.identity);
             }
         }

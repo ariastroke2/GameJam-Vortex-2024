@@ -5,12 +5,6 @@ TagManager:
   serializedVersion: 2
   tags:
   - Tabla
-  - Dardos
-  - Cleotilde
-  - Piedrita
-  - Piedrota
-  - ObjectDestroyer
-  - Enflacador
   layers:
   - Default
   - TransparentFX

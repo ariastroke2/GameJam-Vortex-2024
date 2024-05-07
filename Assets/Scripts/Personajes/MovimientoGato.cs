@@ -221,7 +221,7 @@ public class MovimientoGato : MonoBehaviour
         {
 
             _temporizadorCorutina += Time.deltaTime * EscalaTiempo;
-            transform.position += _YTrans * 2f * Mathf.Cos(_temporizadorCorutina) * Vector3.up * Time.deltaTime;
+            transform.position += _YTrans * 4f * Mathf.Cos(_temporizadorCorutina) * Vector3.up * Time.deltaTime;
             if(_temporizadorCorutina * Mathf.Rad2Deg < 90)
             {
                 _manoIzquierda.localPosition = Vector3.Slerp(_manoIzquierda.localPosition, new Vector3(1.5f, -2f, 2f), _temporizadorCorutina / EscalaTiempo);
@@ -266,7 +266,7 @@ public class MovimientoGato : MonoBehaviour
         RaycastHit hit;
         Physics.BoxCast(transform.position - Vector3.down * 4f, new Vector3(0.5f, 10f, 3f), Vector3.down, out hit);
         if(hit.collider != null)
-            hit.collider.gameObject.GetComponent<Tablon>()?.Recibir(20f, 'a');
+            hit.collider.gameObject.GetComponent<Tablon>()?.Recibir(10f, 'a');
         transform.position = new Vector3(transform.position.x, _YNormal, transform.position.z);
         _audioSource.PlayOneShot(_stomp);
         _ultimaTecla = KeyCode.F1;
@@ -403,16 +403,16 @@ public class MovimientoGato : MonoBehaviour
             Enflacar();
         }
         if(other.CompareTag("Dardos")){
-            RecibirDanho(0.1f,2);
+            RecibirDanho(0.3f,2);
         }
         if(other.CompareTag("Piedrita")){
             RecibirDanho(0.2f,1);
         }
         if(other.CompareTag("Piedrota")){
-            RecibirDanho(0.3f,3);
+            RecibirDanho(0.6f,3);
         }
         if(other.CompareTag("Cleotilde")){
-            RecibirDanho(0.4f,5);
+            RecibirDanho(0.7f,5);
         }
     }
     public void Enflacar(){
